@@ -1,3 +1,4 @@
+from api.permissions import IsAdmin
 from django.conf import settings
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
@@ -8,7 +9,6 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
-from api.permissions import IsAdmin
 from .models import User
 from .serializers import (UserAccessTokenSerializer, UserCreationSerializer,
                           UserSerializer)
