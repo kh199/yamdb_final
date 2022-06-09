@@ -16,6 +16,7 @@ jobs:
       run: | 
         python -m pip install --upgrade pip 
         pip install flake8 pep8-naming flake8-broken-line flake8-return flake8-isort
+        cd api_yamdb/
         pip install -r requirements.txt 
 
     - name: Test with flake8 and django tests
@@ -40,6 +41,7 @@ jobs:
       - name: Push to Docker Hub 
         uses: docker/build-push-action@v2 
         with:
+          context: api_yamdb/
           push: true
           tags: kh199/yamdb:latest
 
@@ -54,10 +56,17 @@ jobs:
         username: ${{ secrets.USER }}
         key: ${{ secrets.SSH_KEY }}
         passphrase: ${{ secrets.PASSPHRASE }}
-        script:
-          sudo docker pull kh199/yamdb
-          sudo docker stop $(sudo docker ps -a -q)
-          sudo docker run --rm -d -p 5000:5000 kh199/yamdb
+        script: |
+            sudo docker-compose stop
+            sudo docker-compose rm web
+            touch .env
+            echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
+            echo DB_NAME=${{ secrets.DB_NAME }} >> .env
+            echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
+            echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
+            echo DB_HOST=${{ secrets.DB_HOST }} >> .env
+            echo DB_PORT=${{ secrets.DB_PORT }} >> .env
+            sudo docker-compose up -d 
 
   send_message:
     runs-on: ubuntu-latest
